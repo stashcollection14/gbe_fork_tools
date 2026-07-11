@@ -336,6 +336,12 @@ def download_achievement_images(game_id : int, image_names : set[str], output_fo
     print(f"downloading achievements images inside '{output_folder }', images count = {len(image_names)}")
     q : queue.Queue[str] = queue.Queue()
 
+    urls = []
+    cdns= [".fastly", ".cloudflare", ".akamai", ""]
+    for cdn in cdns:
+        urls.append(f"https://shared{cdn}.steamstatic.com/community_assets/images/apps/")
+        urls.append(f"https://cdn{cdn}.steamstatic.com/steamcommunity/public/images/apps/")
+    
     def downloader_thread():
         while True:
             name = q.get()
@@ -344,7 +350,7 @@ def download_achievement_images(game_id : int, image_names : set[str], output_fo
                 return
             
             succeeded = False
-            for u in ["https://cdn.akamai.steamstatic.com/steamcommunity/public/images/apps/", "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/"]:
+            for u in urls:
                 url = "{}{}/{}".format(u, game_id, name)
                 try:
                     response = requests.get(url, allow_redirects=True)
